@@ -2,8 +2,12 @@ package com.ex.entity;
 
 import com.ex.Enums.Role;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "users", schema = "jakarta")
 public class User {
     @Column(name = "username", nullable = false, length = 225)
@@ -43,58 +47,5 @@ public class User {
 
     }
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    /*
- TODO [Reverse Engineering] create field to map the 'manager' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @Column(name = "manager", columnDefinition = "role not null")
-    private Object manager;
-*/
 }
