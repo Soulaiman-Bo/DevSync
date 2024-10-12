@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Register</title>
+</h:head>
+<h:body>
+    <h2>Register</h2>
+    <h:form>
+        <h:panelGrid columns="2">
+            <h:outputLabel for="username" value="Username:"/>
+            <h:inputText id="username" value="#{registerBean.user.username}" required="true"/>
+
+            <h:outputLabel for="firstName" value="First Name:"/>
+            <h:inputText id="firstName" value="#{registerBean.user.firstName}"/>
+
+            <h:outputLabel for="lastName" value="Last Name:"/>
+            <h:inputText id="lastName" value="#{registerBean.user.lastName}"/>
+
+            <h:outputLabel for="email" value="Email:"/>
+            <h:inputText id="email" value="#{registerBean.user.email}" required="true"/>
+
+            <h:outputLabel for="password" value="Password:"/>
+            <h:inputSecret id="password" value="#{registerBean.user.password}" required="true"/>
+
+            <h:outputLabel for="confirmPassword" value="Confirm Password:"/>
+            <h:inputSecret id="confirmPassword" value="#{registerBean.confirmPassword}" required="true"/>
+
+            <h:commandButton value="Register" action="#{registerBean.register}"/>
+        </h:panelGrid>
+
+        <h:messages style="color: red"/>
+        <h:outputText value="#{registerBean.errorMessage}" style="color: red"/>
+
+        <h:link outcome="login" value="Back to login"/>
+    </h:form>
+</h:body>
+</html>
