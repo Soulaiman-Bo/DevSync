@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<h:head>
+    <title>Dashboard</title>
+</h:head>
+<h:body>
+    <h2>Welcome, #{userSessionBean.currentUser.firstName}!</h2>
+
+    <f:metadata>
+        <f:viewAction action="#{taskManagementBean.loadManagerTasks}"/>
+    </f:metadata>
+
+    <h:form>
+
+        <h:panelGrid columns="2">
+            <h:outputText value="Username:"/>
+            <h:outputText value="#{userSessionBean.currentUser.username}"/>
+
+            <h:outputText value="Email:"/>
+            <h:outputText value="#{userSessionBean.currentUser.email}"/>
+
+            <h:outputText value="Role:"/>
+            <h:outputText value="#{userSessionBean.currentUser.role}"/>
+        </h:panelGrid>
+
+
+        <h:link outcome="task/create" value="Create new Task"/>
+
+
+        <!-- For User-->
+        <ui:fragment rendered="#{!userSessionBean.manager}">
+
+            <h:panelGroup>
+                <h3>Tasks Created by You</h3>
+                <h:dataTable value="#{taskManagementBean.tasksCreatedByUser}" var="task">
+                    <h:column>
+                        <f:facet name="header">Title</f:facet>
+                        #{task.title}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Assigned To</f:facet>
+                        #{task.user.firstName} #{task.user.lastName}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Status</f:facet>
+                        #{task.status}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Due Date</f:facet>
+                        <h:outputText value="#{task.dueDate}">
+                            <f:convertDateTime type="localDateTime" pattern="yyyy-MM-dd HH:mm"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Tags</f:facet>
+                        <ui:repeat value="#{task.tags}" var="tag">
+                            <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px; border-radius: 3px;">
+                                #{tag.name}
+                            </span>
+                        </ui:repeat>
+                    </h:column>
+
+
+                    <h:column>
+                        <h:commandButton value="Mark as Done" action="#{taskManagementBean.markTaskAsDone}">
+                            <f:setPropertyActionListener target="#{taskManagementBean.selectedTaskId}"
+                                                         value="#{task.id}"/>
+                            <f:ajax execute="@form" render="@form markAsDone"/>
+                        </h:commandButton>
+                    </h:column>
+
+                </h:dataTable>
+            </h:panelGroup>
+
+            <h:panelGroup>
+                <h3>Tasks Created by Manager</h3>
+                <h2>NUMBER OF TOKENS: #{taskManagementBean.tasksCreatedByManager}</h2>
+                <h:dataTable value="#{taskManagementBean.tasksCreatedByManager}" var="task">
+
+                    <h:column>
+                        <f:facet name="header">Title</f:facet>
+                        #{task.title}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Assigned To</f:facet>
+                        #{task.user.firstName} #{task.user.lastName}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Status</f:facet>
+                        #{task.status}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Due Date</f:facet>
+                        <h:outputText value="#{task.dueDate}">
+                            <f:convertDateTime type="localDateTime" pattern="yyyy-MM-dd HH:mm"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Tags</f:facet>
+                        <ui:repeat value="#{task.tags}" var="tag">
+                            <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px; border-radius: 3px;">
+                                #{tag.name}
+                            </span>
+                        </ui:repeat>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Is Refused</f:facet>
+                        #{task.isRefused}
+                    </h:column>
+
+                    <h:column>
+                        <h:commandButton value="Refuse" action="#{taskManagementBean.refuseTask}">
+                            <f:setPropertyActionListener target="#{taskManagementBean.selectedTaskId}"
+                                                         value="#{task.id}"/>
+                            <f:ajax execute="@form" render="@form Refuse"/>
+                        </h:commandButton>
+                    </h:column>
+
+                    <h:column>
+                        <h:commandButton value="Mark as Done" action="#{taskManagementBean.markTaskAsDone}">
+                            <f:setPropertyActionListener target="#{taskManagementBean.selectedTaskId}"
+                                                         value="#{task.id}"/>
+                            <f:ajax execute="@form" render="@form markAsDone"/>
+                        </h:commandButton>
+                    </h:column>
+
+                </h:dataTable>
+            </h:panelGroup>
+
+
+        </ui:fragment>
+
+        <h:messages globalOnly="true"/>
+
+        <!-- For Manager-->
+        <ui:fragment rendered="#{userSessionBean.manager}">
+
+            <h:panelGroup>
+                <h3>Tasks Create By You</h3>
+                <h:dataTable value="#{taskManagementBean.managerTasks}" var="task">
+                    <h:column>
+                        <f:facet name="header">Title</f:facet>
+                        #{task.title}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Assigned To</f:facet>
+                        #{task.user.firstName} #{task.user.lastName}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Status</f:facet>
+                        #{task.status}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Due Date</f:facet>
+                        <h:outputText value="#{task.dueDate}">
+                            <f:convertDateTime type="localDateTime" pattern="yyyy-MM-dd HH:mm"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Tags</f:facet>
+                        <ui:repeat value="#{task.tags}" var="tag">
+                        <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px; border-radius: 3px;">
+                            #{tag.name}
+                        </span>
+                        </ui:repeat>
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+
+            <h:panelGroup>
+                <h3>Tasks Refused By Users</h3>
+                <h:dataTable value="#{taskManagementBean.managerTasks}" var="task">
+                    <h:column>
+                        <f:facet name="header">Title</f:facet>
+                        #{task.title}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Assigned To</f:facet>
+                        #{task.user.firstName} #{task.user.lastName}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Status</f:facet>
+                        #{task.status}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Due Date</f:facet>
+                        <h:outputText value="#{task.dueDate}">
+                            <f:convertDateTime type="localDateTime" pattern="yyyy-MM-dd HH:mm"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Tags</f:facet>
+                        <ui:repeat value="#{task.tags}" var="tag">
+                        <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px; border-radius: 3px;">
+                            #{tag.name}
+                        </span>
+                        </ui:repeat>
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+
+        </ui:fragment>
+
+        <h:commandButton value="Logout" action="#{userSessionBean.logout}"/>
+
+    </h:form>
+</h:body>
+</html>
