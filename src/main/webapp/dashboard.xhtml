@@ -15,6 +15,11 @@
         <f:viewAction action="#{taskManagementBean.loadManagerTasks}"/>
     </f:metadata>
 
+    <f:metadata>
+        <f:viewAction action="#{taskManagementBean.loadManagerTasks}"/>
+    </f:metadata>
+
+
     <h:form>
 
         <h:panelGrid columns="2">
@@ -31,11 +36,10 @@
 
         <h:link outcome="task/create" value="Create new Task"/>
 
-
         <!-- For User-->
         <ui:fragment rendered="#{!userSessionBean.manager}">
 
-            <h:panelGroup>
+            <h:panelGroup rendered="#{not empty taskManagementBean.tasksCreatedByUser}">
                 <h3>Tasks Created by You</h3>
                 <h:dataTable value="#{taskManagementBean.tasksCreatedByUser}" var="task">
                     <h:column>
@@ -81,9 +85,14 @@
                 </h:dataTable>
             </h:panelGroup>
 
-            <h:panelGroup>
+            <h:panelGroup rendered="#{not empty taskManagementBean.tasksCreatedByManager}">
+                <f:event type="preRenderComponent" listener="#{taskManagementBean.loadTokens}"/>
+
                 <h3>Tasks Created by Manager</h3>
-                <h2>NUMBER OF TOKENS: #{taskManagementBean.tasksCreatedByManager}</h2>
+
+                <h2>NUMBER OF REFUSE TOKENS: #{taskManagementBean.tokens.refuse_token}</h2>
+                <h2>NUMBER OF DELETE TOKENS: #{taskManagementBean.tokens.delete_token}</h2>
+
                 <h:dataTable value="#{taskManagementBean.tasksCreatedByManager}" var="task">
 
                     <h:column>
@@ -131,6 +140,14 @@
                     </h:column>
 
                     <h:column>
+                        <h:commandButton value="Deletee" action="#{taskManagementBean.deleteTask}">
+                            <f:setPropertyActionListener target="#{taskManagementBean.selectedTaskId}"
+                                                         value="#{task.id}"/>
+                            <f:ajax execute="@form" render="@form Delete"/>
+                        </h:commandButton>
+                    </h:column>
+
+                    <h:column>
                         <h:commandButton value="Mark as Done" action="#{taskManagementBean.markTaskAsDone}">
                             <f:setPropertyActionListener target="#{taskManagementBean.selectedTaskId}"
                                                          value="#{task.id}"/>
@@ -141,7 +158,6 @@
                 </h:dataTable>
             </h:panelGroup>
 
-
         </ui:fragment>
 
         <h:messages globalOnly="true"/>
@@ -149,7 +165,7 @@
         <!-- For Manager-->
         <ui:fragment rendered="#{userSessionBean.manager}">
 
-            <h:panelGroup>
+            <h:panelGroup rendered="#{not empty taskManagementBean.managerTasks}">
                 <h3>Tasks Create By You</h3>
                 <h:dataTable value="#{taskManagementBean.managerTasks}" var="task">
                     <h:column>
@@ -185,9 +201,45 @@
                 </h:dataTable>
             </h:panelGroup>
 
-            <h:panelGroup>
+            <h:panelGroup rendered="#{not empty taskManagementBean.refusedTasks}">
                 <h3>Tasks Refused By Users</h3>
-                <h:dataTable value="#{taskManagementBean.managerTasks}" var="task">
+                <h:dataTable value="#{taskManagementBean.refusedTasks}" var="task">
+                    <h:column>
+                        <f:facet name="header">Title</f:facet>
+                        #{task.title}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Assigned To</f:facet>
+                        #{task.user.firstName} #{task.user.lastName}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Status</f:facet>
+                        #{task.status}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Due Date</f:facet>
+                        <h:outputText value="#{task.dueDate}">
+                            <f:convertDateTime type="localDateTime" pattern="yyyy-MM-dd HH:mm"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Tags</f:facet>
+                        <ui:repeat value="#{task.tags}" var="tag">
+                        <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px; border-radius: 3px;">
+                            #{tag.name}
+                        </span>
+                        </ui:repeat>
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{not empty taskManagementBean.deletedTasks}">
+                <h3>Tasks Deleted By Users</h3>
+                <h:dataTable value="#{taskManagementBean.deletedTasks}" var="task">
                     <h:column>
                         <f:facet name="header">Title</f:facet>
                         #{task.title}

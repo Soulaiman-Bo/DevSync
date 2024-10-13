@@ -20,12 +20,15 @@ public class TokenService {
     @Inject
     private TokenRepository tokenRepository;
 
+    @Inject
+    private UserService userService;
+
     public Optional<Token> getTokenByUser(User user) {
-        Token token =  tokenRepository.findByUser(user);
-        return Optional.of(token);
+        User returnedUser = userService.getUserById(user.getId()).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + user.getId()));
+        return Optional.of(returnedUser.getToken());
     }
 
-    public Token subtractToken(User user) {
+    public Token subtractRefuseToken(User user) {
         Token token = this.getTokenByUser(user).orElseThrow(() -> new TokenNotFoundException("Token Not Found"));
 
         if(token.getRefuse_token() <= 0){
@@ -37,9 +40,16 @@ public class TokenService {
         return tokenRepository.update(token);
     }
 
+    public Token subtractDeleteToken(User user) {
+        Token token = this.getTokenByUser(user).orElseThrow(() -> new TokenNotFoundException("Token Not Found"));
 
+        if(token.getDelete_token() <= 0){
+            throw new IllegalArgumentException("You can not delete this task, because you consumed all of your tokens");
+        }
 
+        token.setDelete_token(token.getDelete_token() - 1);
 
-
+        return tokenRepository.update(token);
+    }
 
 }

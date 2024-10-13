@@ -99,7 +99,7 @@ public class TaskService {
     }
 
     public Task updateTaskStatus(Long taskId, TaskStatus newStatus, Long userId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("Task not found"));
         User user = userService.getUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
         if (!task.getUser().equals(user) && !user.getRole().equals(UserRole.MANAGER)) {
@@ -136,7 +136,7 @@ public class TaskService {
         Task updatesTask = taskRepository.update(task);
 
         // SUBTRACT TOKEN
-        Token token = tokenService.subtractToken(user);
+        Token token = tokenService.subtractRefuseToken(user);
 
         // CREATE REQUEST
         Request newRequest = new Request();
@@ -146,6 +146,43 @@ public class TaskService {
         newRequest.setCreatedAt(now);
         newRequest.setIsAccepted(Boolean.FALSE);
         requestService.createRequest(newRequest);
+
+        return task;
+    }
+
+    public Task deleteTask(Long taskId, Long userId){
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
+        User user = userService.getUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+
+        if (!(user.getRole().equals(UserRole.MANAGER) || task.getUser().equals(user))) {
+            throw new SecurityException("Only managers or task owner users san delete this task.");
+        }
+
+        if(task.getIsRefused()){
+            throw new IllegalArgumentException("You can not Delete this task, because it is refused before");
+        }
+
+        if(task.getUser().getToken().getDelete_token() <= 0){
+            throw new IllegalArgumentException("You can not delete this task, You have no Tokens left");
+        }
+
+        //  mark as is refused true
+        task.setIsRefused(Boolean.TRUE);
+        task.setUser(null);
+        Task updatesTask = taskRepository.update(task);
+
+        // SUBTRACT TOKEN
+        Token token = tokenService.subtractDeleteToken(user);
+
+        // CREATE REQUEST
+//        Request newRequest = new Request();
+//        newRequest.setTask(updatesTask);
+//        newRequest.setUser(user);
+//        LocalDateTime now = LocalDateTime.now();
+//        newRequest.setCreatedAt(now);
+//        newRequest.setIsAccepted(Boolean.FALSE);
+//        requestService.createRequest(newRequest);
 
         return task;
     }
