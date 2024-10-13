@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/basic-template.xhtml">
+
+    <ui:define name="title">Task Management</ui:define>
+
+    <ui:define name="content">
+        <f:metadata>
+            <f:viewAction action="#{taskManagementBean.init}"/>
+        </f:metadata>
+
+
+        <h:link outcome="/dashboard" value="Go To Dashboard"/>
+
+        <h:form id="taskForm">
+            <h2>Create New Task</h2>
+
+            <h:panelGrid columns="2">
+                <h:outputLabel for="title" value="Title:"/>
+                <h:inputText id="title" value="#{taskManagementBean.newTask.title}"
+                             required="true" requiredMessage="Title is required"/>
+
+                <h:outputLabel for="description" value="Description:"/>
+                <h:inputTextarea id="description" value="#{taskManagementBean.newTask.description}" rows="4"/>
+
+                <h:outputLabel for="dueDate" value="Due Date:"/>
+                <h:inputText id="dueDate" type="datetime-local" value="#{taskManagementBean.newTask.dueDate}">
+                    <f:convertDateTime type="localDateTime" pattern="yyyy-MM-dd'T'HH:mm"/>
+                </h:inputText>
+
+                <h:outputLabel for="tags" value="Tags:"/>
+                <h:inputText id="tags" value="#{taskManagementBean.tagInput}">
+                    <f:ajax event="blur" render="tagList"/>
+                </h:inputText>
+
+                <h:outputLabel value="Current Tags:"/>
+                <h:panelGroup id="tagList">
+                    <ui:repeat value="#{taskManagementBean.getTagList()}" var="tag">
+                        <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px; border-radius: 3px;">
+                            #{tag}
+                            <h:commandLink value="x" action="#{taskManagementBean.removeTag(tag)}" style="margin-left: 3px; color: red;">
+                                <f:ajax render="tagList"/>
+                            </h:commandLink>
+                        </span>
+                    </ui:repeat>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{userSessionBean.manager}">
+                    <h:outputLabel for="assignedUser" value="Assign to:"/>
+                    <h:selectOneMenu id="assignedUser" value="#{taskManagementBean.selectedUserId}" required="true">
+                        <f:selectItem itemLabel="Select User" itemValue=""/>
+                        <f:selectItems value="#{taskManagementBean.availableUsers}"
+                                       var="user" itemValue="#{user.id}"
+                                       itemLabel="#{user.firstName} #{user.lastName}"/>
+                    </h:selectOneMenu>
+                </h:panelGroup>
+            </h:panelGrid>
+
+            <h:commandButton value="Create Task" action="#{taskManagementBean.createTask}">
+                <f:ajax execute="@form" render="@form taskList"/>
+            </h:commandButton>
+
+            <h:messages globalOnly="true"/>
+        </h:form>
+    </ui:define>
+</ui:composition>
+
