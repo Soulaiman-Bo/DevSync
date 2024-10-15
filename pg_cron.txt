@@ -1,0 +1,26 @@
+
+sudo docker exec -it jakartaPostgres bash
+
+apt-get update
+apt-get install postgresql-16-cron
+
+find / -name "postgresql.conf"  => nano /var/lib/postgresql/data/postgresql.conf
+
+shared_preload_libraries = 'pg_cron'
+cron.database_name = 'myjakarta'
+
+docker restart jakartaPostgres
+
+sudo docker exec -it jakartaPostgres bash
+
+psql -U soulaiman -d myjakarta
+
+SELECT cron.schedule('0 0 * * *', 'UPDATE tokens SET delete_token = 1, refuse_token = 2');
+
+SELECT * FROM cron.job;
+
+SELECT cron.unschedule(1);
+
+SELECT cron.schedule('0 * * * *', 'UPDATE tasks SET status = ''INCOMPLETE'' WHERE due_date < NOW() AND status != ''COMPLETED''');
+
+
