@@ -1,8 +1,10 @@
 package com.ex.jakartalearn.service;
 
 import com.ex.jakartalearn.entity.*;
+import com.ex.jakartalearn.enumeration.RequestType;
 import com.ex.jakartalearn.enumeration.TaskStatus;
 import com.ex.jakartalearn.enumeration.UserRole;
+import com.ex.jakartalearn.exceptions.TaskNotFoundException;
 import com.ex.jakartalearn.exceptions.UserNotFoundException;
 import com.ex.jakartalearn.repository.TaskRepository;
 import jakarta.ejb.Stateless;
@@ -30,7 +32,6 @@ public class TaskService {
     @Inject
     private TokenService tokenService;
 
-    // Mark as Done
 
     public Task createTask(Task task, Long assignerId, Long assignedId) {
         if (task == null || assignerId == null || assignedId == null) {
@@ -98,6 +99,10 @@ public class TaskService {
 
     }
 
+    public Task getTaskById(Long taskId) {
+        return taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+    }
+
     public Task updateTaskStatus(Long taskId, TaskStatus newStatus, Long userId) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("Task not found"));
         User user = userService.getUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -115,9 +120,9 @@ public class TaskService {
         return taskRepository.update(task);
     }
 
-    // SUBTRACT TOKEN NUMBER
-    // IF ACCEPTED MARK TASK IS-REFUSED TRUE
-    // CREATE HISTORIC ROW OF = ACTION-TYPE - TASK-ID - USER-ID - TIME
+    public Task updateTask(Task task) {
+        return taskRepository.update(task);
+    }
 
     public Task refuseTask(Long taskId, Long userId){
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
@@ -145,8 +150,8 @@ public class TaskService {
         LocalDateTime now = LocalDateTime.now();
         newRequest.setCreatedAt(now);
         newRequest.setIsAccepted(Boolean.FALSE);
+        newRequest.setRequestType(RequestType.REFUSE);
         requestService.createRequest(newRequest);
-
         return task;
     }
 
@@ -174,15 +179,6 @@ public class TaskService {
 
         // SUBTRACT TOKEN
         Token token = tokenService.subtractDeleteToken(user);
-
-        // CREATE REQUEST
-//        Request newRequest = new Request();
-//        newRequest.setTask(updatesTask);
-//        newRequest.setUser(user);
-//        LocalDateTime now = LocalDateTime.now();
-//        newRequest.setCreatedAt(now);
-//        newRequest.setIsAccepted(Boolean.FALSE);
-//        requestService.createRequest(newRequest);
 
         return task;
     }

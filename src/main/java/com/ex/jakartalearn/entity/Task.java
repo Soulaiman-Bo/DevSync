@@ -49,6 +49,9 @@ public class Task extends BaseEntity implements Serializable {
     )
     private List<Tag> tags = new ArrayList<>();
 
+    @OneToOne(mappedBy = "task", cascade = CascadeType.ALL)
+    private Request request;
+
     public Task() {
         this.isRefused = false;
     }

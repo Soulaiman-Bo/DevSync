@@ -8,6 +8,7 @@ import com.ex.jakartalearn.entity.User;
 import com.ex.jakartalearn.enumeration.TaskStatus;
 import com.ex.jakartalearn.enumeration.UserRole;
 import com.ex.jakartalearn.exceptions.TokenNotFoundException;
+import com.ex.jakartalearn.service.RequestService;
 import com.ex.jakartalearn.service.TaskService;
 import com.ex.jakartalearn.service.TokenService;
 import com.ex.jakartalearn.service.UserService;
@@ -20,47 +21,42 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@Named
+
+@Named("taskManagementBean")
 @ViewScoped
 public class TaskManagementBean implements Serializable {
+    @Getter
+    private final List<String> tagList = new ArrayList<>();
     @Inject
     private TaskService taskService;
-
     @Inject
     private UserService userService;
-
+    @Inject
+    private RequestService requestService;
     @Inject
     private TokenService tokenService;
-
-
     @Inject
     private UserSessionBean userSessionBean;
-
     @Getter
     @Setter
     private Long selectedTaskId;
-
     @Getter
     @Setter
     private Task newTask = new Task();
     @Setter
     @Getter
     private Long selectedUserId;
-
     @Setter
     @Getter
     private Token tokens;
-
     @Getter
     private String tagInput;
-    @Getter
-    private final List<String> tagList = new ArrayList<>();
-
     @Getter
     private List<User> availableUsers;
     @Getter
@@ -78,6 +74,11 @@ public class TaskManagementBean implements Serializable {
     @Getter
     private List<Task> tasksCreatedByManager;
 
+    @Getter @Setter
+    private Map<Long, Long> selectedUserIds = new HashMap<>();
+
+
+
     public void setTagInput(String tagInput) {
         this.tagInput = tagInput;
         if (tagInput != null && !tagInput.trim().isEmpty()) {
@@ -93,8 +94,34 @@ public class TaskManagementBean implements Serializable {
     }
 
     public void init() {
-        availableUsers = userService.getAll();
+        loadUsers();
         loadManagerTasks();
+    }
+
+    public void loadUsers() {
+        System.out.println("===========================");
+        availableUsers = userService.getAll();
+        System.out.println("Available users size: " + availableUsers.size());
+        System.out.println("===========================");
+    }
+
+    public void acceptRequest(Long taskId) {
+        if (selectedUserId == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please select a user to reassign the task", null));
+            return;
+        }
+
+        try {
+            requestService.acceptRequest(selectedUserId, taskId, userSessionBean.getCurrentUser());
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Task reassigned successfully", null));
+            loadManagerTasks();
+            selectedUserId = null;  // Reset the selected user after successful reassignment
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error reassigning task: " + e.getMessage(), null));
+        }
     }
 
     public void loadManagerTasks() {
@@ -102,7 +129,7 @@ public class TaskManagementBean implements Serializable {
             Long currentUserId = userSessionBean.getCurrentUser().getId();
             if (userSessionBean.getCurrentUser().getRole() == UserRole.MANAGER) {
 
-                List<Task> allTasks  = taskService.getTasksByManager(currentUserId);
+                List<Task> allTasks = taskService.getTasksByManager(currentUserId);
 
                 managerTasks = allTasks.stream()
                         .filter(task -> task.getIsRefused().equals(Boolean.FALSE))
@@ -195,6 +222,9 @@ public class TaskManagementBean implements Serializable {
         return null;
     }
 
+    // CHECK IF REQUEST IS IS_ACCEPT=FALSE double tokens +2
+    // make schedual that does the follwing
+    //      - check if
     public void refuseTask() {
         if (selectedTaskId != null) {
             try {
@@ -230,6 +260,5 @@ public class TaskManagementBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "No task selected", null));
         }
     }
-
 
 }
