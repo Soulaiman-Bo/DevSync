@@ -45,4 +45,7 @@ public class User implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Token token;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<RequestQueue> requestQueueList;
+
 }

@@ -1,5 +1,6 @@
 package com.ex.jakartalearn.service;
 
+import com.ex.jakartalearn.entity.Tag;
 import com.ex.jakartalearn.entity.Token;
 import com.ex.jakartalearn.entity.User;
 import com.ex.jakartalearn.enumeration.UserRole;
@@ -7,6 +8,7 @@ import com.ex.jakartalearn.repository.UserRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
+import org.jose4j.jwk.Use;
 
 import java.io.Serializable;
 import java.util.List;
@@ -66,5 +68,8 @@ public class UserService implements Serializable {
         return userRepository.getAll();
     }
 
+    public User updateUser(User user) {
+        return userRepository.update(user);
+    }
 
 }

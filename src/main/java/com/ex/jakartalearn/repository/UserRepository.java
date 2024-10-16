@@ -51,8 +51,9 @@ public class UserRepository {
     }
 
     @Transactional
-    public void update(User user) {
+    public User update(User user) {
         entityManager.merge(user);
+        return  user;
     }
 
     @Transactional
