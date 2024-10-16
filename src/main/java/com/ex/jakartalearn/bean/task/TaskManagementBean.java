@@ -77,8 +77,6 @@ public class TaskManagementBean implements Serializable {
     @Getter @Setter
     private Map<Long, Long> selectedUserIds = new HashMap<>();
 
-
-
     public void setTagInput(String tagInput) {
         this.tagInput = tagInput;
         if (tagInput != null && !tagInput.trim().isEmpty()) {
@@ -222,9 +220,6 @@ public class TaskManagementBean implements Serializable {
         return null;
     }
 
-    // CHECK IF REQUEST IS IS_ACCEPT=FALSE double tokens +2
-    // make schedual that does the follwing
-    //      - check if
     public void refuseTask() {
         if (selectedTaskId != null) {
             try {

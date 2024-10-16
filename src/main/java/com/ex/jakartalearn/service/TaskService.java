@@ -151,6 +151,8 @@ public class TaskService {
         newRequest.setCreatedAt(now);
         newRequest.setIsAccepted(Boolean.FALSE);
         newRequest.setRequestType(RequestType.REFUSE);
+        newRequest.setIsFulfilled(Boolean.FALSE);
+        newRequest.setIsQueued(Boolean.FALSE);
         requestService.createRequest(newRequest);
         return task;
     }

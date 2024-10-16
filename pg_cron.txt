@@ -21,6 +21,6 @@ SELECT * FROM cron.job;
 
 SELECT cron.unschedule(1);
 
-SELECT cron.schedule('0 * * * *', 'UPDATE tasks SET status = ''INCOMPLETE'' WHERE due_date < NOW() AND status != ''COMPLETED''');
+SELECT cron.schedule('0 0 * * *', 'UPDATE tasks SET status = ''INCOMPLETE'' WHERE due_date < NOW() AND status != ''COMPLETED''');
 
 
