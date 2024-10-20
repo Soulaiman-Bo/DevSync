@@ -80,29 +80,6 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public List<Task> getTasksByManager(Long managerId) {
-        Optional<User> manager = userService.getUserById(managerId);
-        if (manager.isPresent()) {
-            return taskRepository.findTasksByCreatedBy(manager.get());
-        } else {
-            throw new SecurityException("Manager or assigned user does not exist");
-        }
-    }
-
-    public List<Task> getTasksByAssignedUser(Long userId) {
-        Optional<User> user = userService.getUserById(userId);
-        if (user.isPresent()) {
-            return taskRepository.findTasksByAssignedUser(user.get());
-        } else {
-            throw new SecurityException("assigned user does not exist");
-        }
-
-    }
-
-    public Task getTaskById(Long taskId) {
-        return taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
-    }
-
     public Task updateTaskStatus(Long taskId, TaskStatus newStatus, Long userId) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("Task not found"));
         User user = userService.getUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -117,10 +94,6 @@ public class TaskService {
         }
 
         task.setStatus(newStatus);
-        return taskRepository.update(task);
-    }
-
-    public Task updateTask(Task task) {
         return taskRepository.update(task);
     }
 
@@ -182,5 +155,33 @@ public class TaskService {
 
         return task;
     }
+
+    public List<Task> getTasksByManager(Long managerId) {
+        Optional<User> manager = userService.getUserById(managerId);
+        if (manager.isPresent()) {
+            return taskRepository.findTasksByCreatedBy(manager.get());
+        } else {
+            throw new SecurityException("Manager or assigned user does not exist");
+        }
+    }
+
+    public List<Task> getTasksByAssignedUser(Long userId) {
+        Optional<User> user = userService.getUserById(userId);
+        if (user.isPresent()) {
+            return taskRepository.findTasksByAssignedUser(user.get());
+        } else {
+            throw new SecurityException("assigned user does not exist");
+        }
+
+    }
+
+    public Task getTaskById(Long taskId) {
+        return taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+    }
+
+    public Task updateTask(Task task) {
+        return taskRepository.update(task);
+    }
+
 
 }
